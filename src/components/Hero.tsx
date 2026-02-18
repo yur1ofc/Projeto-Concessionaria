@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { MessageCircle } from "lucide-react";
+import { siteConfig, whatsappLink } from "@/config/site";
 import heroCar from "@/assets/hero-car.jpg";
 
 const Hero = () => {
@@ -7,7 +8,7 @@ const Hero = () => {
     <section id="inicio" className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background image */}
       <div className="absolute inset-0">
-        <img src={heroCar} alt="Carro de luxo" className="w-full h-full object-cover" />
+        <img src={heroCar} alt="Carro de luxo" loading="eager" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/40" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/60" />
       </div>
@@ -43,7 +44,7 @@ const Hero = () => {
               Ver Estoque
             </a>
             <a
-              href="https://wa.me/5511999999999"
+              href={whatsappLink("Olá! Gostaria de mais informações sobre os veículos.")}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg border border-primary/40 text-primary font-semibold hover:bg-primary/10 transition-all"

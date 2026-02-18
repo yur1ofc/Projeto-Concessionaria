@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { MapPin, Phone, Mail } from "lucide-react";
 import { useState } from "react";
+import { siteConfig } from "@/config/site";
 
 const Contact = () => {
   const [sent, setSent] = useState(false);
@@ -34,9 +35,9 @@ const Contact = () => {
             className="space-y-8"
           >
             {[
-              { icon: MapPin, title: "Endereço", text: "Av. das Nações, 1500 - São Paulo, SP" },
-              { icon: Phone, title: "Telefone", text: "(11) 99999-9999" },
-              { icon: Mail, title: "Email", text: "contato@autoprimemotors.com.br" },
+              { icon: MapPin, title: "Endereço", text: siteConfig.contact.address },
+              { icon: Phone, title: "Telefone", text: siteConfig.contact.phone },
+              { icon: Mail, title: "Email", text: siteConfig.contact.email },
             ].map((info) => (
               <div key={info.title} className="flex items-start gap-4">
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
