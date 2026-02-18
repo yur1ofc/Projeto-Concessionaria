@@ -1,9 +1,10 @@
 import { MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { whatsappLink } from "@/config/site";
 
 const WhatsAppButton = () => (
   <motion.a
-    href="https://wa.me/5511999999999"
+    href={whatsappLink("Olá! Gostaria de mais informações sobre os veículos.")}
     target="_blank"
     rel="noopener noreferrer"
     initial={{ scale: 0 }}

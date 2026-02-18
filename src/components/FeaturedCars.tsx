@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { whatsappLink } from "@/config/site";
 import car1 from "@/assets/car-1.jpg";
 import car2 from "@/assets/car-2.jpg";
 import car3 from "@/assets/car-3.jpg";
@@ -76,12 +77,13 @@ const FeaturedCars = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="group rounded-xl overflow-hidden bg-card border border-border hover:border-primary/40 transition-all duration-300 hover:shadow-gold"
+              className="group rounded-xl overflow-hidden bg-card border border-border hover:border-primary/40 transition-all duration-300 hover:shadow-gold hover:-translate-y-1"
             >
               <div className="relative h-56 overflow-hidden">
                 <img
                   src={car.image}
                   alt={car.name}
+                  loading="lazy"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full">
@@ -90,17 +92,22 @@ const FeaturedCars = () => {
               </div>
               <div className="p-5">
                 <h3 className="text-lg font-bold mb-2">{car.name}</h3>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
                   <span>{car.year}</span>
                   <span className="w-1 h-1 rounded-full bg-muted-foreground" />
                   <span>{car.km}</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xl font-bold text-primary">{car.price}</span>
-                  <button className="px-4 py-2 rounded-lg bg-primary/10 text-primary text-sm font-semibold hover:bg-primary hover:text-primary-foreground transition-all">
-                    Ver detalhes
-                  </button>
+                <div className="text-2xl md:text-3xl font-extrabold text-gradient-gold mb-4">
+                  {car.price}
                 </div>
+                <a
+                  href={whatsappLink(`Olá! Tenho interesse no ${car.name} (${car.year}) - ${car.price}`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full text-center px-4 py-3 rounded-lg bg-primary/10 text-primary text-sm font-semibold hover:bg-primary hover:text-primary-foreground transition-all"
+                >
+                  Ver detalhes
+                </a>
               </div>
             </motion.div>
           ))}

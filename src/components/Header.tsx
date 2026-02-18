@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { siteConfig } from "@/config/site";
 
 const navLinks = [
   { label: "Início", href: "#inicio" },
@@ -32,7 +33,7 @@ const Header = () => {
     >
       <div className="container mx-auto flex items-center justify-between py-4 px-4">
         <a href="#inicio" className="text-2xl font-display font-bold text-gradient-gold">
-          AutoPrime Motors
+          {siteConfig.name}
         </a>
 
         {/* Desktop nav */}
