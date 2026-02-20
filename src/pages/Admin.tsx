@@ -17,7 +17,9 @@ export default function Admin() {
   const [authenticated, setAuthenticated] = useState(false)
   const [password, setPassword] = useState("")
   const [cars, setCars] = useState<Car[]>([])
-  const [form, setForm] = useState({
+  const [editingId, setEditingId] = useState<number | null>(null)
+
+  const emptyForm = {
     name: "",
     price: "",
     year: "",
@@ -26,13 +28,17 @@ export default function Admin() {
     fuel: "",
     description: "",
     image: "",
-  })
+  }
 
+  const [form, setForm] = useState(emptyForm)
+
+  // Persistência login
   useEffect(() => {
+    const auth = localStorage.getItem("adminAuth")
+    if (auth === "true") setAuthenticated(true)
+
     const savedCars = localStorage.getItem("cars")
-    if (savedCars) {
-      setCars(JSON.parse(savedCars))
-    }
+    if (savedCars) setCars(JSON.parse(savedCars))
   }, [])
 
   useEffect(() => {
@@ -42,41 +48,56 @@ export default function Admin() {
   const handleLogin = () => {
     if (password === "1234") {
       setAuthenticated(true)
+      localStorage.setItem("adminAuth", "true")
     } else {
       alert("Senha incorreta")
     }
   }
 
-  const addCar = () => {
-    if (!form.name || !form.price) return
+  const handleLogout = () => {
+    setAuthenticated(false)
+    localStorage.removeItem("adminAuth")
+  }
 
-    const newCar: Car = {
-      id: Date.now(),
-      createdAt: new Date().toLocaleDateString(),
-      ...form,
+  const saveCar = () => {
+    if (!form.name || !form.price) {
+      alert("Preencha nome e preço")
+      return
     }
 
-    setCars([newCar, ...cars])
-    setForm({
-      name: "",
-      price: "",
-      year: "",
-      km: "",
-      transmission: "",
-      fuel: "",
-      description: "",
-      image: "",
-    })
+    if (editingId) {
+      setCars(cars.map(car =>
+        car.id === editingId ? { ...car, ...form } : car
+      ))
+      setEditingId(null)
+    } else {
+      const newCar: Car = {
+        id: Date.now(),
+        createdAt: new Date().toLocaleDateString(),
+        ...form,
+      }
+      setCars([newCar, ...cars])
+    }
+
+    setForm(emptyForm)
+  }
+
+  const editCar = (car: Car) => {
+    setForm(car)
+    setEditingId(car.id)
+    window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
   const removeCar = (id: number) => {
-    setCars(cars.filter(car => car.id !== id))
+    if (confirm("Tem certeza que deseja remover este veículo?")) {
+      setCars(cars.filter(car => car.id !== id))
+    }
   }
 
   if (!authenticated) {
     return (
-      <div style={styles.loginContainer}>
-        <div style={styles.loginCard}>
+      <div style={styles.center}>
+        <div style={styles.card}>
           <h2>Painel Administrativo</h2>
           <input
             type="password"
@@ -95,110 +116,72 @@ export default function Admin() {
 
   return (
     <div style={styles.container}>
-      <h1 style={{ marginBottom: 10 }}>Dashboard</h1>
-
-      {/* RESUMO */}
-      <div style={styles.statsContainer}>
-        <div style={styles.statCard}>
-          <h3>Total de Veículos</h3>
-          <p style={styles.statNumber}>{cars.length}</p>
-        </div>
+      <div style={styles.topBar}>
+        <h1>Dashboard</h1>
+        <button onClick={handleLogout} style={styles.deleteButton}>
+          Sair
+        </button>
       </div>
 
-      {/* FORMULÁRIO */}
       <div style={styles.card}>
-        <h2>Adicionar Veículo</h2>
+        <h2>{editingId ? "Editar Veículo" : "Adicionar Veículo"}</h2>
 
         <div style={styles.grid}>
-          <input
-            placeholder="Nome do Veículo"
-            value={form.name}
-            onChange={e => setForm({ ...form, name: e.target.value })}
-            style={styles.input}
-          />
-
-          <input
-            placeholder="Preço"
-            value={form.price}
-            onChange={e => setForm({ ...form, price: e.target.value })}
-            style={styles.input}
-          />
-
-          <input
-            placeholder="Ano"
-            value={form.year}
-            onChange={e => setForm({ ...form, year: e.target.value })}
-            style={styles.input}
-          />
-
-          <input
-            placeholder="KM"
-            value={form.km}
-            onChange={e => setForm({ ...form, km: e.target.value })}
-            style={styles.input}
-          />
-
-          <input
-            placeholder="Câmbio"
-            value={form.transmission}
-            onChange={e => setForm({ ...form, transmission: e.target.value })}
-            style={styles.input}
-          />
-
-          <input
-            placeholder="Combustível"
-            value={form.fuel}
-            onChange={e => setForm({ ...form, fuel: e.target.value })}
-            style={styles.input}
-          />
-
-          <input
-            placeholder="URL da Imagem"
-            value={form.image}
-            onChange={e => setForm({ ...form, image: e.target.value })}
-            style={styles.input}
-          />
+          {Object.keys(emptyForm).map((key) => (
+            key !== "description" && (
+              <input
+                key={key}
+                placeholder={key.toUpperCase()}
+                value={(form as any)[key]}
+                onChange={e =>
+                  setForm({ ...form, [key]: e.target.value })
+                }
+                style={styles.input}
+              />
+            )
+          ))}
         </div>
 
         <textarea
           placeholder="Descrição"
           value={form.description}
           onChange={e => setForm({ ...form, description: e.target.value })}
-          style={{ ...styles.input, height: 100, marginTop: 10 }}
+          style={{ ...styles.input, height: 100 }}
         />
 
-        <button onClick={addCar} style={styles.primaryButton}>
-          + Adicionar Veículo
+        <button onClick={saveCar} style={styles.primaryButton}>
+          {editingId ? "Salvar Alterações" : "Adicionar Veículo"}
         </button>
       </div>
 
-      {/* LISTA */}
       <div style={{ marginTop: 40 }}>
-        <h2>Veículos Cadastrados</h2>
-
-        {cars.length === 0 && <p>Nenhum veículo cadastrado.</p>}
+        <h2>Veículos Cadastrados ({cars.length})</h2>
 
         {cars.map(car => (
           <div key={car.id} style={styles.carCard}>
             <img
-              src={car.image}
+              src={car.image || "https://via.placeholder.com/150"}
               alt={car.name}
               style={styles.carImage}
+              onError={(e: any) =>
+                e.target.src = "https://via.placeholder.com/150"
+              }
             />
 
             <div style={{ flex: 1 }}>
               <h3>{car.name}</h3>
               <p><strong>{car.price}</strong></p>
               <p>{car.year} • {car.km} km • {car.transmission} • {car.fuel}</p>
-              <p style={{ fontSize: 14, opacity: 0.7 }}>
+              <p style={{ fontSize: 12, opacity: 0.6 }}>
                 Cadastrado em: {car.createdAt}
               </p>
             </div>
 
-            <button
-              onClick={() => removeCar(car.id)}
-              style={styles.deleteButton}
-            >
+            <button onClick={() => editCar(car)} style={styles.primaryButton}>
+              Editar
+            </button>
+
+            <button onClick={() => removeCar(car.id)} style={styles.deleteButton}>
               Remover
             </button>
           </div>
@@ -216,25 +199,18 @@ const styles: any = {
     color: "white",
     fontFamily: "Arial"
   },
+  center: {
+    height: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#0f172a"
+  },
   card: {
     backgroundColor: "#1e293b",
     padding: 20,
     borderRadius: 10,
     marginTop: 20
-  },
-  statsContainer: {
-    display: "flex",
-    gap: 20
-  },
-  statCard: {
-    backgroundColor: "#1e293b",
-    padding: 20,
-    borderRadius: 10,
-    width: 200
-  },
-  statNumber: {
-    fontSize: 28,
-    fontWeight: "bold"
   },
   grid: {
     display: "grid",
@@ -242,17 +218,16 @@ const styles: any = {
     gap: 10
   },
   input: {
-  padding: 10,
-  borderRadius: 6,
-  border: "1px solid #334155",
-  marginTop: 10,
-  backgroundColor: "#0f172a",
-  color: "#ffffff",
-  outline: "none"
-},
+    padding: 10,
+    borderRadius: 6,
+    border: "1px solid #334155",
+    marginTop: 10,
+    backgroundColor: "#0f172a",
+    color: "#ffffff",
+  },
   primaryButton: {
     marginTop: 15,
-    padding: 12,
+    padding: 10,
     backgroundColor: "#22c55e",
     color: "white",
     border: "none",
@@ -261,17 +236,17 @@ const styles: any = {
     fontWeight: "bold"
   },
   deleteButton: {
+    marginTop: 15,
+    padding: 10,
     backgroundColor: "#ef4444",
     color: "white",
     border: "none",
-    padding: 10,
     borderRadius: 6,
-    cursor: "pointer",
-    height: 40
+    cursor: "pointer"
   },
   carCard: {
     display: "flex",
-    gap: 20,
+    gap: 15,
     backgroundColor: "#1e293b",
     padding: 15,
     borderRadius: 10,
@@ -284,20 +259,9 @@ const styles: any = {
     objectFit: "cover",
     borderRadius: 6
   },
-  loginContainer: {
-    height: "100vh",
+  topBar: {
     display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#0f172a"
-  },
-  loginCard: {
-    backgroundColor: "#1e293b",
-    padding: 30,
-    borderRadius: 10,
-    display: "flex",
-    flexDirection: "column",
-    gap: 10,
-    width: 300
+    justifyContent: "space-between",
+    alignItems: "center"
   }
 }
