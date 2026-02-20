@@ -242,11 +242,14 @@ const styles: any = {
     gap: 10
   },
   input: {
-    padding: 10,
-    borderRadius: 6,
-    border: "none",
-    marginTop: 10
-  },
+  padding: 10,
+  borderRadius: 6,
+  border: "1px solid #334155",
+  marginTop: 10,
+  backgroundColor: "#0f172a",
+  color: "#ffffff",
+  outline: "none"
+},
   primaryButton: {
     marginTop: 15,
     padding: 12,
