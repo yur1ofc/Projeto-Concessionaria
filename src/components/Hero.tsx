@@ -1,7 +1,8 @@
-import { motion } from "framer-motion";
-import { MessageCircle } from "lucide-react";
-import { siteConfig, whatsappLink } from "@/config/site";
-import heroCar from "@/assets/hero-car.jpg";
+import { motion } from "framer-motion"
+import { MessageCircle } from "lucide-react"
+import { siteConfig, whatsappLink } from "@/config/site"
+import heroCar from "@/assets/hero-car.jpg"
+import { Link } from "react-router-dom" // Adicione esta importação
 
 const Hero = () => {
   return (
@@ -37,12 +38,13 @@ const Hero = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">
-            <a
-              href="#estoque"
+            {/* ALTERADO: Link para /estoque em vez de #estoque */}
+            <Link
+              to="/estoque"
               className="inline-flex items-center justify-center px-8 py-4 rounded-lg bg-primary text-primary-foreground font-semibold hover:brightness-110 transition-all shadow-gold"
             >
               Ver Estoque
-            </a>
+            </Link>
             <a
               href={whatsappLink("Olá! Gostaria de mais informações sobre os veículos.")}
               target="_blank"
@@ -56,7 +58,7 @@ const Hero = () => {
         </motion.div>
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default Hero;
+export default Hero

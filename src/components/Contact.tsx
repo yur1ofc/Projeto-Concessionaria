@@ -1,16 +1,36 @@
-import { motion } from "framer-motion";
-import { MapPin, Phone, Mail } from "lucide-react";
-import { useState } from "react";
-import { siteConfig } from "@/config/site";
+import { motion } from "framer-motion"
+import { MapPin, Phone, Mail, Send } from "lucide-react"
+import { useState } from "react"
+import { siteConfig } from "@/config/site"
+import { useToast } from "@/hooks/use-toast"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 
 const Contact = () => {
-  const [sent, setSent] = useState(false);
+  const { toast } = useToast()
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: ""
+  })
+  const [sending, setSending] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSent(true);
-    setTimeout(() => setSent(false), 3000);
-  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSending(true)
+
+    // Simula envio (você pode integrar com EmailJS ou backend)
+    setTimeout(() => {
+      toast({
+        title: "Mensagem enviada!",
+        description: "Entraremos em contato em breve.",
+      })
+      setFormData({ name: "", email: "", phone: "", message: "" })
+      setSending(false)
+    }, 1500)
+  }
 
   return (
     <section id="contato" className="py-24 bg-background">
@@ -49,6 +69,18 @@ const Contact = () => {
                 </div>
               </div>
             ))}
+
+            <div className="pt-4">
+              <a
+                href={`https://wa.me/${siteConfig.contact.whatsapp}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-primary hover:underline"
+              >
+                <Phone size={16} />
+                WhatsApp: {siteConfig.contact.whatsapp}
+              </a>
+            </div>
           </motion.div>
 
           <motion.form
@@ -58,40 +90,53 @@ const Contact = () => {
             onSubmit={handleSubmit}
             className="space-y-4"
           >
-            <input
+            <Input
               type="text"
               placeholder="Seu nome"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
-              className="w-full px-4 py-3 rounded-lg bg-card border border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
             />
-            <input
+            <Input
               type="email"
               placeholder="Seu email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
-              className="w-full px-4 py-3 rounded-lg bg-card border border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
             />
-            <input
+            <Input
               type="tel"
               placeholder="Seu telefone"
-              className="w-full px-4 py-3 rounded-lg bg-card border border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             />
-            <textarea
+            <Textarea
               placeholder="Sua mensagem"
+              value={formData.message}
+              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
               rows={4}
               required
-              className="w-full px-4 py-3 rounded-lg bg-card border border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all resize-none"
             />
-            <button
+            <Button
               type="submit"
-              className="w-full py-4 rounded-lg bg-primary text-primary-foreground font-semibold hover:brightness-110 transition-all shadow-gold"
+              disabled={sending}
+              className="w-full py-6"
+              size="lg"
             >
-              {sent ? "✓ Mensagem enviada!" : "Enviar Mensagem"}
-            </button>
+              {sending ? (
+                "Enviando..."
+              ) : (
+                <>
+                  <Send className="mr-2 h-4 w-4" />
+                  Enviar Mensagem
+                </>
+              )}
+            </Button>
           </motion.form>
         </div>
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default Contact;
+export default Contact

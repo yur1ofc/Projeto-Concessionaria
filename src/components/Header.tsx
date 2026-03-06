@@ -1,26 +1,59 @@
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
-import { siteConfig } from "@/config/site";
+import { useState, useEffect } from "react"
+import { Link, useLocation } from "react-router-dom"
+import { motion } from "framer-motion"
+import { Menu, X } from "lucide-react"
+import { siteConfig } from "@/config/site"
+import { cn } from "@/lib/utils"
 
 const navLinks = [
-  { label: "Início", href: "#inicio" },
-  { label: "Estoque", href: "#estoque" },
-  { label: "Diferenciais", href: "#diferenciais" },
-  { label: "Depoimentos", href: "#depoimentos" },
-  { label: "Sobre", href: "#sobre" },
-  { label: "Contato", href: "#contato" },
-];
+  { label: "Início", href: "/" },
+  { label: "Estoque", href: "/estoque" },
+  { label: "Diferenciais", href: "/#diferenciais" },
+  { label: "Depoimentos", href: "/#depoimentos" },
+  { label: "Sobre", href: "/#sobre" },
+  { label: "Contato", href: "/#contato" },
+]
 
 const Header = () => {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const location = useLocation()
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    const onScroll = () => setScrolled(window.scrollY > 50)
+    window.addEventListener("scroll", onScroll)
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
+
+  useEffect(() => {
+    setMenuOpen(false)
+  }, [location])
+
+  // Função para lidar com cliques em links com âncora
+  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.includes("#") && location.pathname === "/") {
+      // Se está na home e clicou em âncora, faz scroll suave
+      e.preventDefault()
+      const targetId = href.split("#")[1]
+      const element = document.getElementById(targetId)
+      if (element) {
+        const offset = 80 // altura do header
+        const elementPosition = element.getBoundingClientRect().top + window.scrollY
+        window.scrollTo({
+          top: elementPosition - offset,
+          behavior: "smooth"
+        })
+      }
+    }
+  }
+
+  const isActive = (href: string) => {
+    if (href === "/") return location.pathname === "/"
+    if (href.includes("#")) {
+      return location.pathname === "/" && location.hash === href.substring(1)
+    }
+    return location.pathname === href
+  }
 
   return (
     <motion.header
@@ -32,20 +65,26 @@ const Header = () => {
       }`}
     >
       <div className="container mx-auto flex items-center justify-between py-4 px-4">
-        <a href="#inicio" className="text-2xl font-display font-bold text-gradient-gold">
+        <Link to="/" className="text-2xl font-display font-bold text-gradient-gold">
           {siteConfig.name}
-        </a>
+        </Link>
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.href}
-              href={link.href}
-              className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors"
+              to={link.href}
+              onClick={(e) => handleAnchorClick(e, link.href)}
+              className={cn(
+                "text-sm font-medium transition-colors",
+                isActive(link.href)
+                  ? "text-primary"
+                  : "text-foreground/70 hover:text-primary"
+              )}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -53,6 +92,7 @@ const Header = () => {
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="md:hidden text-foreground"
+          aria-label="Menu"
         >
           {menuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -67,20 +107,28 @@ const Header = () => {
         >
           <div className="flex flex-col items-center gap-4 py-6">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.href}
-                href={link.href}
-                onClick={() => setMenuOpen(false)}
-                className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors"
+                to={link.href}
+                onClick={(e) => {
+                  handleAnchorClick(e, link.href)
+                  setMenuOpen(false)
+                }}
+                className={cn(
+                  "text-sm font-medium transition-colors",
+                  isActive(link.href)
+                    ? "text-primary"
+                    : "text-foreground/70 hover:text-primary"
+                )}
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </div>
         </motion.nav>
       )}
     </motion.header>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header
